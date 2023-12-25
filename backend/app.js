@@ -27,7 +27,7 @@ app.get('/places', async (req, res) => {
 });
 
 app.get('/user-places', async (req, res) => {
-  const fileContent = await fs.readFile('./backend/data/user-places.json');
+  const fileContent = await fs.readFile('../backend/data/user-places.json');
 
   const places = JSON.parse(fileContent);
 
@@ -37,7 +37,7 @@ app.get('/user-places', async (req, res) => {
 app.put('/user-places', async (req, res) => {
   const places = req.body.places;
 
-  await fs.writeFile('./backend/data/user-places.json', JSON.stringify(places));
+  await fs.writeFile('../backend/data/user-places.json', JSON.stringify(places));
 
   res.status(200).json({ message: 'User places updated!' });
 });

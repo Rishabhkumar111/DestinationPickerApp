@@ -1,10 +1,12 @@
-import { useRef, useState, useCallback } from 'react';
+import { useRef, useState, useCallback } from "react";
 
-import Places from './components/Places.jsx';
-import Modal from './components/Modal.jsx';
-import DeleteConfirmation from './components/DeleteConfirmation.jsx';
-import logoImg from './assets/logo.png';
-import AvailablePlaces from './components/AvailablePlaces.jsx';
+import Places from "./components/Places.jsx";
+import Modal from "./components/Modal.jsx";
+import DeleteConfirmation from "./components/DeleteConfirmation.jsx";
+import logoImg from "./assets/logo.png";
+import AvailablePlaces from "./components/AvailablePlaces.jsx";
+import { updatedUserPlaces } from "./http.js";
+import Errors from "./components/Errors.jsx";
 
 function App() {
   const selectedPlace = useRef();
@@ -12,6 +14,8 @@ function App() {
   const [userPlaces, setUserPlaces] = useState([]);
 
   const [modalIsOpen, setModalIsOpen] = useState(false);
+
+  const [errorUpdatedUserPlaces, setErrorUpdatedUserPlaces] = useState(null);
 
   function handleStartRemovePlace(place) {
     setModalIsOpen(true);
@@ -22,7 +26,11 @@ function App() {
     setModalIsOpen(false);
   }
 
-  function handleSelectPlace(selectedPlace) {
+  function handleError() {
+    setErrorUpdatedUserPlaces(null);
+  }
+
+  async function handleSelectPlace(selectedPlace) {
     setUserPlaces((prevPickedPlaces) => {
       if (!prevPickedPlaces) {
         prevPickedPlaces = [];
@@ -32,6 +40,12 @@ function App() {
       }
       return [selectedPlace, ...prevPickedPlaces];
     });
+    try {
+      await updatedUserPlaces([selectedPlace, ...userPlaces]);
+    } catch (error) {
+      setUserPlaces(userPlaces);
+      setErrorUpdatedUserPlaces({ message: error.message || 'failed to update places' });
+    }
   }
 
   const handleRemovePlace = useCallback(async function handleRemovePlace() {
@@ -44,6 +58,15 @@ function App() {
 
   return (
     <>
+      <Modal open={errorUpdatedUserPlaces} onClose={handleError}>
+        {errorUpdatedUserPlaces && (
+          <Errors
+            title="An error occurred"
+            message={errorUpdatedUserPlaces.message}
+            onConfirm={handleError}
+          />
+        )}
+      </Modal>
       <Modal open={modalIsOpen} onClose={handleStopRemovePlace}>
         <DeleteConfirmation
           onCancel={handleStopRemovePlace}
