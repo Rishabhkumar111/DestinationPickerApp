@@ -44,17 +44,35 @@ function App() {
       await updatedUserPlaces([selectedPlace, ...userPlaces]);
     } catch (error) {
       setUserPlaces(userPlaces);
-      setErrorUpdatedUserPlaces({ message: error.message || 'failed to update places' });
+      setErrorUpdatedUserPlaces({
+        message: error.message || "failed to update places",
+      });
     }
   }
 
-  const handleRemovePlace = useCallback(async function handleRemovePlace() {
-    setUserPlaces((prevPickedPlaces) =>
-      prevPickedPlaces.filter((place) => place.id !== selectedPlace.current.id)
-    );
+  const handleRemovePlace = useCallback(
+    async function handleRemovePlace() {
+      setUserPlaces((prevPickedPlaces) =>
+        prevPickedPlaces.filter(
+          (place) => place.id !== selectedPlace.current.id
+        )
+      );
 
-    setModalIsOpen(false);
-  }, []);
+      try {
+        await updatedUserPlaces(
+          userPlaces.filter((place) => place.id !== selectedPlace.current.id)
+        );
+      } catch (error) {
+        setUserPlaces(userPlaces);
+        setErrorUpdatedUserPlaces({
+          message: error.message || "failed to delete places",
+        });
+      }
+x
+      setModalIsOpen(false);
+    },
+    [userPlaces]
+  );
 
   return (
     <>
